@@ -56,4 +56,12 @@ antsRegistration \
   -s 2x1vox \
   -v 1 \
   --masks [${ATLAS_MASK},${SUBJECT_MASK}]
+
 echo "SyN registration completed."
+antsApplyTransforms \
+  -d 3 \
+  -i ${SUBJECT_MASKED} \
+  -r ${ATLAS_MASKED} \
+  -o ${OUTPUT_PREFIX}_final.nii.gz \
+  -t ${OUTPUT_PREFIX}syn_1Warp.nii.gz \
+  -t ${OUTPUT_PREFIX}syn_0GenericAffine.mat
