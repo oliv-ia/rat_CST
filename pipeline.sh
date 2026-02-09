@@ -8,7 +8,7 @@ ATLAS=$3
 OUTPUT_PREFIX=$4 
 
 # Preprocessing scaling as scanner has a scaling error 
-python /Users/user/Documents/PhD/GitHub/rat_CST/scale.py $SUBJECT $OUTPUT_PREFIX"_scaled.nii.gz" 
+python ./scale.py $SUBJECT $OUTPUT_PREFIX"_scaled.nii.gz" 
 fslswapdim $OUTPUT_PREFIX"_scaled.nii.gz" x y -z $OUTPUT_PREFIX"_scaled_reorientated.nii.gz"
 #cp $OUTPUT_PREFIX"_scaled.nii.gz" $OUTPUT_PREFIX"_scaled_reorientated.nii.gz"
 fslreorient2std $OUTPUT_PREFIX"_scaled_reorientated.nii.gz" $OUTPUT_PREFIX"_scaled_reorientated_std.nii.gz"
