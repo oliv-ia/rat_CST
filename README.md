@@ -5,4 +5,11 @@ This script relies on the following tools:
   ANTs (antsRegistration)
 Ensure these are installed and available in your system $PATH.
 Example usage
+```
 ./pipeline.sh rat01.nii.gz atlas_mask.nii.gz atlas.nii.gz rat01_output
+```
+To install necessary packages, run 
+```
+pip install -e . 
+```
+from the project root.
