@@ -6,7 +6,7 @@ This script relies on the following tools:
 Ensure these are installed and available in your system $PATH.
 Example usage
 ```
-./pipeline.sh rat01.nii.gz atlas_mask.nii.gz atlas.nii.gz rat01_output
+./pipeline.sh <path to rat01.nii.gz> <path to atlas_mask.nii.gz> <path to atlas.nii.gz> <path to output folder>
 ```
 To install necessary packages, run 
 ```
