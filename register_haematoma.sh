@@ -8,11 +8,14 @@ ATLAS_MASKED=${ATLAS_DIR}/WHS_SD_rat_T2star_v1.01_bet.nii.gz
 
 
 # Preprocessing scaling as scanner has a scaling error 
-python ./scale.py $SUBJECT_HAEM $OUTPUT_PREFIX"_haematoma_scaled.nii.gz" 
+python3 ./scale.py $SUBJECT_HAEM $OUTPUT_PREFIX"_haematoma_scaled.nii.gz" 
 fslswapdim $OUTPUT_PREFIX"_haematoma_scaled.nii.gz" x y -z $OUTPUT_PREFIX"_haematoma_scaled_reorientated.nii.gz"
 #cp $OUTPUT_PREFIX"_scaled.nii.gz" $OUTPUT_PREFIX"_scaled_reorientated.nii.gz"
 fslreorient2std $OUTPUT_PREFIX"_haematoma_scaled_reorientated.nii.gz" $OUTPUT_PREFIX"_haematoma_scaled_reorientated_std.nii.gz"
-
+if [ ! -f $ATLAS_DIR/WHS_SD_rat_T2star_v1.01_bet.nii.gz ]; then
+    echo "Atlas masked image not found, creating it now."
+    bet4animal ${ATLAS_DIR}/WHS_SD_rat_T2star_v1.01.nii.gz ${ATLAS_DIR}/WHS_SD_rat_T2star_v1.01_bet.nii.gz -z 5 -m
+fi
 antsApplyTransforms \
   -d 3 \
   -i $OUTPUT_PREFIX"_haematoma_scaled_reorientated_std.nii.gz" \
