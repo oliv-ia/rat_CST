@@ -5,8 +5,8 @@ output_dir=$3
 
 
 for subject in ${dir}/*ipsi_haematoma.nii; do
-    new_subjectname=$(echo $subject | sed -r 's/[[:blank:]]+/_/g')
-    mv "$subject" "$new_subjectname"
+ new_subjectname=$(echo $subject | sed -r 's/[[:blank:]]+/_/g')
+ mv "$subject" "$new_subjectname"
 
     
     filename=$(basename -- "$new_subjectname" "_ipsi_haematoma.nii")
