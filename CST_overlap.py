@@ -68,7 +68,7 @@ if __name__ == "__main__":
     
     registration_dir = "/Users/user/Documents/postdoc/rat_CST/mary_d7_reg_test"
     atlas_path = "/Users/user/Downloads/WHS_SD_rat_atlas_v4_pack/WHS_SD_rat_atlas_v4.nii.gz"
-    cst_value = 1 # manually set
+    cst_value = 1 
 
 
     for folder in os.listdir(registration_dir):
