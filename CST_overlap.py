@@ -4,6 +4,9 @@ import os
 from scipy.spatial import cKDTree
 from scipy.ndimage import binary_erosion
 import pandas as pd
+import matplotlib.pyplot as plt
+import sys
+
 def calculate_overlap(atlas_path, nifti_path, cst_value):
     # Load images
     atlas_img = nib.load(atlas_path)
@@ -20,6 +23,43 @@ def calculate_overlap(atlas_path, nifti_path, cst_value):
         return 0, 0
     else:
         return np.nan, np.nan
+
+def calculate_interruption(atlas_path, nifti_path, cst_value):
+    # Load images
+    atlas_img = nib.load(atlas_path)
+    img = nib.load(nifti_path)
+    
+    # Get binary data
+    atlas_data = atlas_img.get_fdata()
+    cst_mask = (atlas_data == cst_value).astype(np.uint8)
+    data = img.get_fdata() > 0
+
+    overlaps = []
+    # Err if not the same length
+    if len(data[1]) != len(cst_mask[1]):
+        sys.exit("Length of haematoma seg not the same as length of the CST seg")
+    # Iterate through the slices 
+    for i in range(0, len(cst_mask[1])):
+        
+        cst_slice = cst_mask[:,i].astype(int)
+        haem_slice = data[:,i].astype(int)
+        area_intersect = (cst_slice & haem_slice).sum()
+        
+        if cst_slice.sum() == 0:
+            overlap = 0
+        else:
+            overlap = (area_intersect/(cst_mask[:,i].sum()))*100
+        overlaps.append(overlap)
+    max_overlap = np.max(overlaps)
+
+    if max_overlap >= 90: # Change this number if you want to change the threshold we define 'interrupted' to be
+        return max_overlap, 1
+    else:
+        return max_overlap, 0
+
+    
+
+
 
 
 def extract_surface(mask):
@@ -65,6 +105,8 @@ if __name__ == "__main__":
     min_distances = []
     overlaps = []
     overlap_volumes = []
+    max_overlaps = []
+    tract_interrupt = []
     
     registration_dir = "/Users/user/Documents/postdoc/rat_CST/mary_d7_reg_test"
     atlas_path = "/Users/user/Downloads/WHS_SD_rat_atlas_v4_pack/WHS_SD_rat_atlas_v4.nii.gz"
@@ -81,6 +123,7 @@ if __name__ == "__main__":
                     haem_path = os.path.join(filedir, file)
                 
                     overlap, overlap_vol = calculate_overlap(atlas_path, haem_path, cst_value)
+                    max_overlap, interruption = calculate_interruption(atlas_path, haem_path, cst_value)
                     min_distance = compute_shortest_distance(atlas_path, haem_path, cst_value)
                     
                 
@@ -91,12 +134,16 @@ if __name__ == "__main__":
                     min_distances.append(min_distance)
                     overlaps.append(overlap)
                     overlap_volumes.append(overlap_vol)
+                    max_overlaps.append(max_overlap)
+                    tract_interrupt.append(interruption)
                     counter += 1
 
     data = {"ID": ids,
             "Overlap": overlaps,
             "Overlap volume": overlap_volumes,
-            "Minium distance": min_distances
+            "Minium distance": min_distances,
+            "Max overlap": max_overlaps,
+            "Tract interruption": tract_interrupt
             }
     print("Finished, processed ", counter, " images.")
 
