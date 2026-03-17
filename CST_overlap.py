@@ -4,7 +4,6 @@ import os
 from scipy.spatial import cKDTree
 from scipy.ndimage import binary_erosion
 import pandas as pd
-import matplotlib.pyplot as plt
 import sys
 
 def calculate_overlap(atlas_path, nifti_path, cst_value):
