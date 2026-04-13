@@ -169,7 +169,7 @@ if __name__ == "__main__":
             "Overlap volume": overlap_volumes,
             "Minium distance": min_distances,
             "Max overlap L": max_overlaps_L,
-            "Max overlap R": max_overlap_R,
+            "Max overlap R": max_overlaps_R,
             "Tract interruption_L": tract_interrupt_L,
             "Tract interruption_R": tract_interrupt_R
 
