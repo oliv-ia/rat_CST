@@ -33,28 +33,52 @@ def calculate_interruption(atlas_path, nifti_path, cst_value):
     cst_mask = (atlas_data == cst_value).astype(np.uint8)
     data = img.get_fdata() > 0
 
-    overlaps = []
+    overlaps_L = []
+    overlaps_R = []
     # Err if not the same length
     if len(data[1]) != len(cst_mask[1]):
         sys.exit("Length of haematoma seg not the same as length of the CST seg")
     # Iterate through the slices 
     for i in range(0, len(cst_mask[1])):
-        
-        cst_slice = cst_mask[:,i].astype(int)
-        haem_slice = data[:,i].astype(int)
-        area_intersect = (cst_slice & haem_slice).sum()
-        
-        if cst_slice.sum() == 0:
-            overlap = 0
-        else:
-            overlap = (area_intersect/(cst_mask[:,i].sum()))*100
-        overlaps.append(overlap)
-    max_overlap = np.max(overlaps)
 
-    if max_overlap >= 90: # Change this number if you want to change the threshold we define 'interrupted' to be
-        return max_overlap, 1
-    else:
-        return max_overlap, 0
+        cst_slice = cst_mask[:, i, :]
+        haem_slice = data[:, i, :] 
+
+        mid = cst_slice.shape[0] // 2
+
+       
+        cst_L = cst_slice[:mid, :]
+        cst_R = cst_slice[mid:, :]
+
+        haem_L = haem_slice[:mid, :]
+        haem_R = haem_slice[mid:, :]
+
+        # LEFT
+        if cst_L.sum() == 0:
+            overlap_L = 0
+        else:
+            area_intersect_L = (cst_L & haem_L).sum()
+            overlap_L = (area_intersect_L / cst_L.sum()) * 100
+
+        # RIGHT
+        if cst_R.sum() == 0:
+            overlap_R = 0
+        else:
+            area_intersect_R = (cst_R & haem_R).sum()
+            overlap_R = (area_intersect_R / cst_R.sum()) * 100
+        overlaps_L.append(overlap_L)
+        overlaps_R.append(overlap_R)
+            
+    max_L = np.max(overlaps_L)
+    max_R = np.max(overlaps_R)
+
+
+
+    # Thresholding
+    interrupted_L = 1 if max_L >= 90 else 0
+    interrupted_R = 1 if max_R >= 90 else 0
+
+    return max_L, interrupted_L, max_R, interrupted_R
 
     
 
@@ -104,9 +128,10 @@ if __name__ == "__main__":
     min_distances = []
     overlaps = []
     overlap_volumes = []
-    max_overlaps = []
-    tract_interrupt = []
-    
+    max_overlaps_L = []
+    max_overlaps_R = []
+    tract_interrupt_L = []
+    tract_interrupt_R = []
     registration_dir = "/Users/user/Documents/postdoc/rat_CST/mary_d7_reg_test"
     atlas_path = "/Users/user/Downloads/WHS_SD_rat_atlas_v4_pack/WHS_SD_rat_atlas_v4.nii.gz"
     cst_value = 1 
@@ -116,13 +141,13 @@ if __name__ == "__main__":
         if ".DS_Store" not in folder:
             filedir = os.path.join(registration_dir, folder)
             for file in os.listdir(filedir):
-                if "haematoma_final_bin.nii.gz" in file:
+                if "haematoma_final_bin_test.nii.gz" in file:
                     id = str(folder)
 
                     haem_path = os.path.join(filedir, file)
                 
                     overlap, overlap_vol = calculate_overlap(atlas_path, haem_path, cst_value)
-                    max_overlap, interruption = calculate_interruption(atlas_path, haem_path, cst_value)
+                    max_overlap_L, interruption_L, max_overlap_R, interruption_R = calculate_interruption(atlas_path, haem_path, cst_value)
                     min_distance = compute_shortest_distance(atlas_path, haem_path, cst_value)
                     
                 
@@ -133,16 +158,21 @@ if __name__ == "__main__":
                     min_distances.append(min_distance)
                     overlaps.append(overlap)
                     overlap_volumes.append(overlap_vol)
-                    max_overlaps.append(max_overlap)
-                    tract_interrupt.append(interruption)
+                    max_overlaps_L.append(max_overlap_L)
+                    max_overlaps_R.append(max_overlap_R)
+                    tract_interrupt_L.append(interruption_L)
+                    tract_interrupt_R.append(interruption_R)
                     counter += 1
 
     data = {"ID": ids,
             "Overlap": overlaps,
             "Overlap volume": overlap_volumes,
             "Minium distance": min_distances,
-            "Max overlap": max_overlaps,
-            "Tract interruption": tract_interrupt
+            "Max overlap L": max_overlaps_L,
+            "Max overlap R": max_overlap_R,
+            "Tract interruption_L": tract_interrupt_L,
+            "Tract interruption_R": tract_interrupt_R
+
             }
     print("Finished, processed ", counter, " images.")
 
