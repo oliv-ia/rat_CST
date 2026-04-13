@@ -141,7 +141,7 @@ if __name__ == "__main__":
         if ".DS_Store" not in folder:
             filedir = os.path.join(registration_dir, folder)
             for file in os.listdir(filedir):
-                if "haematoma_final_bin_test.nii.gz" in file:
+                if "haematoma_final_bin.nii.gz" in file:
                     id = str(folder)
 
                     haem_path = os.path.join(filedir, file)
